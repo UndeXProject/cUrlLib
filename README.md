@@ -47,7 +47,7 @@ print($curl->get('http://example.com/', false));
 cURL library support next actions:
 | Action              | Params                                          | Return             | Description                                            |
 | ------------------- | ----------------------------------------------- | ------------------ | ------------------------------------------------------ |
-| `construct`         |   cookie `str` - path to cookie file (required) | -                  | Construct funcion. Called in create object.            |
+| `construct`         |   cookie `str` - path to cookie file (required) | -                  | Construct function. Called in create object.           |
 |                     |   url `str` - url adress                        |                    |                                                        |
 | `setDefaultOptions` | -                                               | `Bool` - status    | Set dafault cURL options.                              |
 | `setOption`         |   option `constant` - cURL option               | `Bool` - status    | Set custom cURL option, see                            |
