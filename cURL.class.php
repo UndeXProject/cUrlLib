@@ -12,15 +12,42 @@ class cUrlLib {
     public $UA;
     public $REF;
     public $COOKIE;
+    public $CACHE           =   false;      // Cache engine status
+    public $CACHE_DIR       =   __DIR__;    // Default cache directory
+    /* No cache MIME */
+    public $CACHE_FILER     =   "";
+    public $CACHE_MAX_SIZE  =   1048576;    // Max cache file size (bytes). Zero - unlimited. 1048576 - 1 Mb.
     public $UA_LIST = array(
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36'
     );
     public $REF_LIST = array(
-        'https://vk.com/',
-        'https://google.com/',
-        'https://2ip.ru/',
-        'https://pikabu.ru/',
-        'https://spaces.ru/'
+        "http://www.google.com/",
+		"http://pastebin.com",
+		"http://www.yandex.ru/",
+		"http://www.yahoo.com/",
+		"http://www.youtube.ru/",
+		"http://www.carderlife.ms/",
+		"http://www.hacker-pro.net/",
+		"http://www.host-tracker.com/",
+		"http://www.forum.antichat.ru/",
+		"http://www.lenta.ru/",
+		"http://www.wikpedia.org/",
+		"http://www.mail.ru/",
+		"http://www.vkontakte.ru/",
+		"http://www.upyachka.ru/",
+		"http://www.2ip.ru/",
+		"http://www.webmoney.ru/",
+		"http://www.live.com/",
+		"http://www.libertyreserve.com/",
+		"http://www.ebay.com/",
+		"http://www.microsoft.com/",
+		"http://www.ninemsn.com/",
+		"http://oce.leagueoflegends.com/",
+		"http://aftamat4ik.ru/",
+		"http://vk.com/",
+		"http://facebook.com/",
+		"http://twitter.com/",
+		"https://www.dropbox.com/"
     );
 
     // Private variables
@@ -88,6 +115,22 @@ class cUrlLib {
     }
 
     /*
+        Get cURL connection information
+        (See: https://www.php.net/manual/ru/function.curl-getinfo.php)
+
+        Param $option   [mixed]         -   cURL info constant or FALSE
+
+        Return          [mixed]         -   Option information or all data
+    */
+    public function getInfo($option = false){
+        if($option){
+            return curl_getinfo($this->C, $option);
+        }else{
+            return curl_getinfo($this->C);
+        }
+    }
+
+    /*
         Open cURL connection
 
         Return [CurlHandle]     -   cUrl handle
@@ -114,6 +157,35 @@ class cUrlLib {
     }
 
     /*
+        Get cache data
+
+        Param $link [string]        -   URL adress
+
+        Return      [mixed]         -   Cache data from url or FALSE
+    */
+    public function getCacheData($link){
+        $name = md5($link);
+        if(file_exists($this->CACHE_DIR.'/'.$name)){
+            $data = file_get_contents($this->CACHE_DIR.'/'.$name);
+            return gzdecode($data);
+        }else{
+            return false;
+        }
+    }
+
+
+    /*
+        Save link to cache
+
+        Param $link [string]        -   URL adress
+        Param $data [string]        -   Data
+    */
+    private function saveCacheData($link, $data){
+        $name = md5($link);
+        file_put_contents($this->CACHE_DIR.'/'.$name, $data);
+    }
+
+    /*
         Get data
 
         Param $url  [mixed]     - False or url
@@ -128,9 +200,27 @@ class cUrlLib {
         }else
             if(empty($this->URL)) throw new Exception('cUrlLib: URL is empty!');
         curl_setopt($this->C, CURLOPT_URL, $this->URL);
-        if($gzip)
-            return gzdecode(curl_exec($this->C));
-        else
-            return curl_exec($this->C);
+
+        $data = curl_exec($this->C);
+        if($data === false){
+            if($this->CACHE){
+                $data = $this->getCacheData($this->URL);
+            }else{
+                $data = false;
+            }
+        }else{
+            if($this->CACHE){
+                $size = intval($this->getInfo(CURLINFO_SIZE_DOWNLOAD));
+                $mime = $this->getInfo(CURLINFO_CONTENT_TYPE);
+                // Check size
+                if($this->CACHE_MAX_SIZE!=0 && $size<=$this->CACHE_MAX_SIZE){
+                    // Check mime
+                    if(!in_array($mime, explode("|",$this->CACHE_FILER))){
+                        $this->saveCacheData($this->URL, ($gzip ? $data : gzencode($data)));
+                    }
+                }
+            }
+            return ($gzip ? gzdecode($data) : $data);
+        }
     }
 }
