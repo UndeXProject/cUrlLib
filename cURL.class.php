@@ -15,7 +15,7 @@ class cUrlLib {
     public $CACHE           =   false;      // Cache engine status
     public $CACHE_DIR       =   __DIR__;    // Default cache directory
     /* No cache MIME */
-    public $CACHE_FILER     =   "";
+    public $CACHE_FILER     =   array();
     public $CACHE_MAX_SIZE  =   1048576;    // Max cache file size (bytes). Zero - unlimited. 1048576 - 1 Mb.
     public $UA_LIST = array(
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36'
@@ -215,7 +215,7 @@ class cUrlLib {
                 // Check size
                 if($this->CACHE_MAX_SIZE!=0 && $size<=$this->CACHE_MAX_SIZE){
                     // Check mime
-                    if(!in_array($mime, explode("|",$this->CACHE_FILER))){
+                    if(!in_array($mime, $this->CACHE_FILER)){
                         $this->saveCacheData($this->URL, ($gzip ? $data : gzencode($data)));
                     }
                 }
