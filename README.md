@@ -43,6 +43,21 @@ print($curl->get('http://example.com/', false));
 ?>
 ```
 
+### Example get data and enable cache
+```PHP
+<?php
+include_once __DIR__.'/cURL.class.php';
+
+$cookie_file = __DIR__.'/cookies.txt';
+$curl = new cUrlLib($cookie_file);
+
+$curl->CACHE = true;
+$curl->CACHE_DIR = __DIR__.'/cache';
+$data = $curl->get('http://example.com/');
+print($data);
+?>
+```
+
 # Actions information
 cURL library support next actions:
 | Action              | Params                                          | Return             | Description                                            |
@@ -57,3 +72,16 @@ cURL library support next actions:
 | `close`             | -                                               | `Bool` - status    | Close cURL session.                                    |
 | `get`               |   url `str` - url adress                        | `String` - request | Get data from url.                                     |
 |                     |   gzip `bool` - enable/disable gzip decoder     | data               |                                                        |
+| `getCacheData`      |   link `str` - url adress                       | `Mixed` - data or  | Get cache from url                                     |
+|                     |                                                 | FALSE              |                                                        |
+
+And support next variables set:
+| Variable            | Type    | Description                                                |
+| ------------------- | ------- | ---------------------------------------------------------- |
+| `URL`               | String  | URL adress for request                                     |
+| `UA_LIST`           | Array   | List User agents                                           |
+| `REF_LIST`          | Array   | List referer                                               |
+| `CACHE`             | Bool    | Enable or disable cache engine                             |
+| `CACHE_DIR`         | String  | Path to cache directory. !!! Without end backslash !!!     |
+| `CACHE_FILER`       | Array   | List filter from mime type                                 |
+| `CACHE_MAX_SIZE`    | Int     | Max cache filesize from bytes. Zero - unlimeted            |
